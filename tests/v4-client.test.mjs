@@ -439,8 +439,12 @@ await new Promise((r) => setTimeout(r, 1200));
   doc.composer = composer;
   btn.fire('click', { stopPropagation() {}, preventDefault() {} });
   check(`走编辑器通道填入（setEditorState 调用 ${setCalls} 次）`, setCalls === 1);
-  check('提示词指向维修手册并要求"先只诊断"',
-    typeof parsedJson === 'string' && parsedJson.includes('维修手册.md') && parsedJson.includes('先只诊断'));
+  check('提示词指向维修手册，且先要求「问症状」、再「只诊断」（顺序不能反）',
+    typeof parsedJson === 'string' && parsedJson.includes('维修手册.md')
+      && parsedJson.includes('先问我「发生了什么」') && parsedJson.includes('再只诊断')
+      && parsedJson.indexOf('先问我') < parsedJson.indexOf('再只诊断'));
+  check('提示词明说别一上来就跑测试/翻代码',
+    typeof parsedJson === 'string' && parsedJson.includes('别一上来就跑测试或翻代码'));
   check('提示词用的是宿主给的路径（不是写死的 /root/.dsh）',
     typeof parsedJson === 'string' && parsedJson.includes('/tmp/某台机器的DSH/plugin-src/dsh-peak-chip/维修手册.md')
       && !parsedJson.includes('/root/.dsh'));

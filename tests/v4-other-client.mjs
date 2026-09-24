@@ -79,10 +79,18 @@ if (onCalibratedDay) {
   near('误差 E 归零（差额全被认成其它端）', Number(rows.at(-1).residual), Math.max(0, -expectedO), 0.02);
 }
 console.log(`     （账本已长到 ${log.length} 窗；此刻 L=${lastLog.localToday} S=${lastLog.S} → O=${rows.at(-1).otherSpent}）`);
+/* ⚠️ 2026-09-24 修正：下面这两条也是**标定日专属**的断言 —— "那段差额"指的就是 2026-09-20 那笔
+   它端消费。原先它们漏在 `if (onCalibratedDay)` 外面，后果是**换天之后每天必红**：
+   拿 09-20 的硬编码种子去回放今天的实时账本，量级当然对不上。现归入同一个守卫。 */
 const maxE = Math.max(...rows.map((r) => Number(r.residual)));
-ok('E 全程 < 阈值 2', maxE < 2, `最大 ${maxE.toFixed(3)}`);
 const maxO = Math.max(...rows.map((r) => Number(r.otherSpent)));
-ok('O 认出了那段差额', maxO >= 3, `最大 ${maxO.toFixed(3)}`);
+if (onCalibratedDay) {
+  ok('E 全程 < 阈值 2', maxE < 2, `最大 ${maxE.toFixed(3)}`);
+  ok('O 认出了那段差额', maxO >= 3, `最大 ${maxO.toFixed(3)}`);
+} else {
+  console.log(`     ⏭ 非标定日：跳过「E 全程 < 2」「O 认出那段差额」`
+    + `（本次实测量级 E=${maxE.toFixed(3)} O=${maxO.toFixed(3)}，仅标注不判红）`);
+}
 /* 当天第一窗的 O 不能当断言：跨日重锚（锚点读数晚、结算延迟）本身就带来一窗暂态，
    2026-09-21 实测首窗 O=0.688、随后回落到 0。这里只标注，不判红。
    它真正要防的是"电脑端长期在花"——那会让 O 持续 > 0，用下面的 maxO 与 E 一起看。 */
@@ -97,8 +105,13 @@ for (const r of rows) {
   if (oldE >= 2) streak += 1; else streak = 0;
   if (streak >= 3) latched = true;
 }
-ok('旧口径确实锁存了（这就是线上故障）', latched === true, `旧口径最大 E=${Math.max(...rows.map((r) => Math.abs(Number(r.todaySpent) - Number(r.localToday)))).toFixed(3)}`);
-ok('旧口径的 E 全程被"其它端消费"污染', Math.max(...rows.map((r) => Math.abs(Number(r.todaySpent) - Number(r.localToday)))) > 2);
+/* 【2】同样是标定日专属：它跟【1】共用同一份"09-20 种子 + 当前账本"的回放。 */
+if (onCalibratedDay) {
+  ok('旧口径确实锁存了（这就是线上故障）', latched === true, `旧口径最大 E=${Math.max(...rows.map((r) => Math.abs(Number(r.todaySpent) - Number(r.localToday)))).toFixed(3)}`);
+  ok('旧口径的 E 全程被"其它端消费"污染', Math.max(...rows.map((r) => Math.abs(Number(r.todaySpent) - Number(r.localToday)))) > 2);
+} else {
+  console.log('     ⏭ 非标定日：跳过【2】的两条反向验证断言（同【1】，依赖 09-20 的标定数据）');
+}
 
 console.log('\n【3】切分函数本身（纯函数单测）');
 const { splitResidual } = await import('../lib/index.js');

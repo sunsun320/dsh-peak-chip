@@ -1,6 +1,6 @@
 {
   "name": "dsh-peak-chip",
-  "version": "4.1.7",
+  "version": "4.1.8",
   "description": "DeepSeek 峰谷指示灯：会话头部一个圆点；面板两个数（本日消耗/余额），点开是详单（本地审计/本日首次观测余额/当前余额/今日充值/无法审计/误差三档告警）",
   "type": "module",
   "main": "lib/index.js",

@@ -92,12 +92,12 @@ DeepSeek 按峰谷时段定价，这个插件把"今天花了多少、余额还�
 从 Release 附件安装（安装器不执行任何构建脚本，本插件是零构建的）：
 
 ```sh
-dsha-plugin import dsh-peak-chip-4.1.7.tgz
+dsha-plugin import dsh-peak-chip-4.1.8.tgz
 ```
 
 装完**重启 dsh web**，并在浏览器里刷新页面。
 
-- 发布包：<https://github.com/sunsun320/dsh-peak-chip/releases/download/v4.1.7/dsh-peak-chip-4.1.7.tgz>
+- 发布包：<https://github.com/sunsun320/dsh-peak-chip/releases/download/v4.1.8/dsh-peak-chip-4.1.8.tgz>
 
 ## 它做什么
 
